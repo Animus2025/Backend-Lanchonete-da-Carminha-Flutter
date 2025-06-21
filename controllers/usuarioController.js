@@ -1,11 +1,11 @@
 const bcrypt = require('bcrypt');
 const db = require('../database');
-const { numerosVerificados, codigosVerificacao } = require('./whatsappController');
+const { codigosVerificacao } = require('./whatsappController');
 const { formatarNumero } = require('../utils/formatarNumero');
 
 const cadastrosPendentes = {};
 
-// Pré-cadastro: salva temporariamente os dados do usuário
+// Pré-cadastro
 exports.preCadastro = async (req, res) => {
   const { nome_usuario, email, senha, numero, endereco, cpf } = req.body;
   if (!nome_usuario || !numero || !cpf || !endereco || !senha) {
@@ -13,11 +13,19 @@ exports.preCadastro = async (req, res) => {
   }
 
   const numeroFormatado = formatarNumero(numero);
-  cadastrosPendentes[numeroFormatado] = { nome_usuario, email, senha, numero: numeroFormatado, endereco, cpf };
+  cadastrosPendentes[numeroFormatado] = {
+    nome_usuario,
+    email,
+    senha,
+    numero: numeroFormatado,
+    endereco,
+    cpf,
+  };
+
   res.status(201).json({ message: "Pré-cadastro realizado. Verifique seu número via WhatsApp." });
 };
 
-// Finaliza cadastro: salva no banco de dados usando os dados do pré-cadastro
+// Finalizar cadastro
 exports.finalizarCadastro = async (req, res) => {
   const { numero, codigo } = req.body;
   if (!numero || !codigo) {
@@ -30,12 +38,6 @@ exports.finalizarCadastro = async (req, res) => {
   if (!dados) {
     return res.status(400).json({ error: "Nenhum pré-cadastro encontrado para este número." });
   }
-
-  // (Opcional) Se quiser validar o código, descomente as linhas abaixo:
-  // const registro = codigosVerificados[numeroFormatado];
-  // if (!registro || registro.codigo !== codigo) {
-  //   return res.status(401).json({ error: "Código de verificação inválido!" });
-  // }
 
   try {
     const hashedPassword = await bcrypt.hash(dados.senha, 10);
@@ -56,7 +58,6 @@ exports.finalizarCadastro = async (req, res) => {
           return res.status(500).json({ error: "Erro ao cadastrar usuário." });
         }
 
-        // Limpa o pré-cadastro após inserir
         delete cadastrosPendentes[numeroFormatado];
 
         res.status(201).json({ message: "Usuário cadastrado com sucesso!", id: result.insertId });
@@ -68,10 +69,12 @@ exports.finalizarCadastro = async (req, res) => {
   }
 };
 
-// Login do usuário
+// Login
 exports.loginUsuario = (req, res) => {
   const { email, numero, senha } = req.body;
-  if ((!email && !numero) || !senha) return res.status(400).json({ error: "Informe email ou número e a senha!" });
+  if ((!email && !numero) || !senha) {
+    return res.status(400).json({ error: "Informe email ou número e a senha!" });
+  }
 
   const numeroFormatado = numero ? formatarNumero(numero) : null;
   const sql = `SELECT * FROM usuario WHERE email = ? OR telefone = ? LIMIT 1`;
@@ -81,6 +84,7 @@ exports.loginUsuario = (req, res) => {
     if (results.length === 0) return res.status(401).json({ error: "Usuário não encontrado!" });
 
     const usuario = results[0];
+    console.log("🟢 Login retornando:", usuario); // Aqui está OK
     const match = await bcrypt.compare(senha, usuario.senha);
     if (!match) return res.status(401).json({ error: "Senha incorreta!" });
 
@@ -90,21 +94,26 @@ exports.loginUsuario = (req, res) => {
         id: usuario.id,
         nome_usuario: usuario.nome_usuario,
         email: usuario.email,
-        numero: usuario.telefone // Retorna como "numero" para manter padrão na resposta
+        numero: usuario.telefone,
+        cpf: usuario.cpf,
+        endereco: usuario.endereco
       }
     });
   });
 };
 
-// Redefinição de senha do usuário
+// Redefinir senha
 exports.redefinirSenhaWpp = async (req, res) => {
   const { numero, novaSenha } = req.body;
-  if (!numero || !novaSenha) return res.status(400).json({ error: "Informe o número e a nova senha." });
+  if (!numero || !novaSenha) {
+    return res.status(400).json({ error: "Informe o número e a nova senha." });
+  }
 
   const numeroFormatado = formatarNumero(numero);
   try {
     const hashedSenha = await bcrypt.hash(novaSenha, 10);
     const sql = `UPDATE usuario SET senha = ? WHERE telefone = ?`;
+
     db.query(sql, [hashedSenha, numeroFormatado], (err, result) => {
       if (err) return res.status(500).json({ error: "Erro ao redefinir senha." });
       if (result.affectedRows === 0) return res.status(404).json({ error: "Usuário com esse número não encontrado." });
@@ -114,4 +123,28 @@ exports.redefinirSenhaWpp = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Erro interno ao redefinir senha." });
   }
+};
+
+// Atualizar dados do usuário
+exports.atualizarUsuario = (req, res) => {
+  const { id } = req.params;
+  const { nome_usuario, email, telefone, cpf, endereco } = req.body;
+
+  const sql = `UPDATE usuario SET nome_usuario = ?, email = ?, telefone = ?, cpf = ?, endereco = ? WHERE id = ?`;
+  db.query(sql, [nome_usuario, email, telefone, cpf, endereco, id], (err, result) => {
+    if (err) return res.status(500).json({ error: "Erro ao atualizar usuário." });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+
+    res.json({
+      id,
+      nome_usuario,
+      email,
+      numero: telefone,
+      cpf,
+      endereco
+    });
+  });
 };
