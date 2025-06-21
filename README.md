@@ -13,16 +13,16 @@ API feita com Node.js + MySQL para gerenciar pedidos, produtos e pagamentos da l
 
 1. Clone o repositório:
 
-```bash
+````bash
 git clone https://github.com/luana-fialho/Backend-Lanchonete-da-Carminha-Flutter.git
 cd Backend-Lanchonete-da-Carminha-Flutter
-
+````
 ## 🚀 Como rodar o projeto
 
 ```bash
 npm install
 npm start
-
+````
 ## 🛢️ Banco de Dados
 
 Este projeto utiliza **MySQL** como banco de dados. Para facilitar a configuração, o dump com a estrutura e dados já está incluído no repositório.
