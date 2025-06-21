@@ -1,0 +1,39 @@
+# 📦 Node
+node_modules/
+
+# ⚙️ Ambientes / Configs
+.env
+auth_info_baileys/
+
+# 🪵 Logs
+*.log
+
+# 💾 Sistema
+.DS_Store
+Thumbs.db
+
+# ⚡ IDEs
+.vscode/
+.idea/
+
+# 🧪 Testes temporários
+temp/
+__tests__/
+
+# 🚫 Banco local, se não for necessário no Git
+*.sqlite
+*.db
+
+# 🧙‍♂️ Ignora arquivos que não quer subir
+# Ignora as dependências (pesado e desnecessário no Git)
+node_modules/
+
+# Arquivos de ambiente (segurança, senhas, tokens, etc)
+.env
+
+# Dados de autenticação do Baileys (informações sensíveis do WhatsApp)
+auth_info_baileys/
+
+# Logs da aplicação
+*.log
+
