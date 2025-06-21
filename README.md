@@ -49,7 +49,7 @@ Este projeto utiliza **MySQL** como banco de dados. Para facilitar a configuraç
 
 ### ✅ Configuração do ambiente
 
-Após importar o banco, configure o seu arquivo `.env` com os dados de conexão:
+Após importar o banco, configure o seu arquivo `database.js` com os dados de conexão:
 
 ```env
 DB_HOST=localhost
