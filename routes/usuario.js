@@ -16,7 +16,7 @@ router.post('/login', usuarioController.loginUsuario);
 // POST /usuario/redefinir-senha chama a função de redefinição de senha do controller
 router.post('/redefinir-senha-wpp', usuarioController.redefinirSenhaWpp);
 
-router.put('/usuario/:id', usuarioController.atualizarUsuario);
+router.put('/:id', usuarioController.atualizarUsuario);
 
 // Exporta o roteador para ser usado no arquivo principal da aplicação (index.js)
 module.exports = router;

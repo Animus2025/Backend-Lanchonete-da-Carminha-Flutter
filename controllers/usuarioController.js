@@ -127,6 +127,10 @@ exports.redefinirSenhaWpp = async (req, res) => {
 
 // Atualizar dados do usuário
 exports.atualizarUsuario = (req, res) => {
+  console.log("🔧 Requisição PUT chegou!");
+  console.log("ID:", req.params.id);
+  console.log("Body:", req.body);
+
   const { id } = req.params;
   const { nome_usuario, email, telefone, cpf, endereco } = req.body;
 
@@ -148,3 +152,4 @@ exports.atualizarUsuario = (req, res) => {
     });
   });
 };
+
