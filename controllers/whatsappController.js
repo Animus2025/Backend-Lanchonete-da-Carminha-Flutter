@@ -200,3 +200,28 @@ Valores:
   }
 };
 
+exports.enviarMensagemCancelamentoWpp = async ({
+  numero,
+  nome,
+  id_pedido,
+  data_retirada,
+  horario_retirada
+}) => {
+  const sock = getSock();
+  if (!sock) {
+    console.error('❌ WhatsApp não está conectado!');
+    return;
+  }
+ 
+  const mensagem = 
+`❌ Pedido Cancelado ❌
+Olá, ${nome}!
+Seu pedido #${id_pedido} para retirada em ${data_retirada} às ${horario_retirada} foi cancelado conforme solicitado.
+Se precisar de algo, estamos à disposição!`;
+
+  await sock.sendMessage(
+    `${numero}@s.whatsapp.net`,
+    { text: mensagem }
+  );
+  console.log(`✅ Mensagem de cancelamento enviada para ${numero}`);
+};
