@@ -7,6 +7,7 @@ require('./whatsappClient')         // Inicializa o cliente do WhatsApp (escuta 
 const usuarioRoutes = require('./routes/usuario');    // Rotas relacionadas a usuários (cadastro, login, etc)
 const produtoRoutes = require('./routes/produto');    // Rotas relacionadas a produtos
 const whatsappRoutes = require('./routes/whatsapp');  // Rotas para integração com WhatsApp (enviar código, etc)
+const pedidoRoutes = require('./routes/pedido');      // Rotas relacionadas a pedidos
 
 const app = express(); // Cria a aplicação Express
 
@@ -18,6 +19,7 @@ app.use(express.json());   // Faz o Express entender requisições com corpo em 
 app.use('/usuario', usuarioRoutes);    // Tudo que começar com /usuario vai para usuarioRoutes
 app.use('/produto', produtoRoutes);   // Tudo que começar com /produtos vai para produtoRoutes
 app.use('/whatsapp', whatsappRoutes);  // Tudo que começar com /whatsapp vai para whatsappRoutes
+app.use('/pedido', pedidoRoutes);            // Tudo que começar com / vai para pedidoRoutes
 
 // Rota simples para testar se a API está online
 app.get('/', (req, res) => {

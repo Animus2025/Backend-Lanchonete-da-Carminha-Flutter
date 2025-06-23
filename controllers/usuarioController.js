@@ -91,7 +91,7 @@ exports.loginUsuario = (req, res) => {
     res.json({
       message: "Login realizado com sucesso!",
       usuario: {
-        id: usuario.id,
+        id_usuario: usuario.id_usuario,
         nome_usuario: usuario.nome_usuario,
         email: usuario.email,
         numero: usuario.telefone,
@@ -134,7 +134,8 @@ exports.atualizarUsuario = (req, res) => {
   const { id } = req.params;
   const { nome_usuario, email, telefone, cpf, endereco } = req.body;
 
-  const sql = `UPDATE usuario SET nome_usuario = ?, email = ?, telefone = ?, cpf = ?, endereco = ? WHERE id = ?`;
+  // Corrija o nome da coluna para id_usuario
+  const sql = `UPDATE usuario SET nome_usuario = ?, email = ?, telefone = ?, cpf = ?, endereco = ? WHERE id_usuario = ?`;
   db.query(sql, [nome_usuario, email, telefone, cpf, endereco, id], (err, result) => {
     if (err) return res.status(500).json({ error: "Erro ao atualizar usuário." });
 
@@ -143,7 +144,7 @@ exports.atualizarUsuario = (req, res) => {
     }
 
     res.json({
-      id,
+      id_usuario: id,
       nome_usuario,
       email,
       numero: telefone,
