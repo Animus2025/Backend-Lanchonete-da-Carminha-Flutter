@@ -4,6 +4,7 @@ const db = require('../database');
 exports.listarProdutos = (req, res) => {
   const sql = `
     SELECT 
+      id_produto,
       nome_produto,
       categoria,
       estado,
@@ -28,6 +29,7 @@ exports.listarProdutos = (req, res) => {
 exports.listarBebidas = (req, res) => {
   const sql = `
     SELECT 
+      id_produto,
       nome_produto,
       preco_pronto AS preco_pronto,
       imagem

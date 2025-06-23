@@ -1,6 +1,7 @@
 const db = require('../database');
 
 exports.criarPedido = (req, res) => {
+  console.log('Body recebido:', req.body);
   const {
     id_usuario,
     data_retirada,
@@ -58,7 +59,9 @@ exports.criarPedido = (req, res) => {
               return res.status(500).json({ error: 'Erro ao inserir pagamento.' });
             }
 
+            // Retorna o id do pedido criado para o frontend
             return res.status(201).json({ message: 'Pedido criado com sucesso!', id_pedido });
+
           }
         );
       });

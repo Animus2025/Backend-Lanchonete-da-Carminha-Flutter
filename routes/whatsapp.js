@@ -12,5 +12,7 @@ router.post('/confirmar-codigo', whatsappController.confirmarCodigo);
 
 router.post('/alterar-senha', whatsappController.alterarSenhaWpp);
 
+router.post('/confirmar-pedido', whatsappController.enviarResumoPedidoWpp);
+
 // Exporta o roteador para ser usado no arquivo principal da aplicação (index.js)
 module.exports = router;

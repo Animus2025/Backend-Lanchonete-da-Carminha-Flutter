@@ -120,3 +120,83 @@ exports.alterarSenhaWpp = async (req, res) => {
   );
 };
 
+exports.enviarResumoPedidoWpp = async (req, res) => {
+  const {
+    id_usuario,
+    nome_usuario,
+    email,
+    pedidoId,
+    dataRetirada,
+    horarioRetirada,
+    formaPagamento,
+    statusPagamento,
+    itens,
+    subtotal,
+    descontos,
+    total
+  } = req.body;
+
+  const db = require('../database');
+  const { getSock } = require('../whatsappClient');
+  const { formatarNumero } = require('../utils/formatarNumero');
+  const sock = getSock();
+  if (!sock) {
+    console.error('❌ WhatsApp não está conectado!');
+    return res.status(500).json({ error: 'WhatsApp não está conectado.' });
+  }
+  console.log('Enviando resumo para id_usuario:', id_usuario);
+
+  // Busca o telefone do usuário no banco de dados
+  let numero;
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT telefone FROM usuario WHERE id_usuario = ? LIMIT 1',
+      [id_usuario]
+    );
+    if (!rows.length) {
+      console.error('Usuário não encontrado para envio do WhatsApp.');
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+    numero = rows[0].telefone;
+  } catch (err) {
+    console.error('Erro ao buscar telefone do usuário:', err);
+    return res.status(500).json({ error: 'Erro ao buscar telefone do usuário.' });
+  }
+
+  const numeroFormatado = formatarNumero(numero);
+
+  // Monta a lista de itens
+  const itensTexto = itens.map(item =>
+    `● ${item.quantidade}unid. | ${item.nome} | ${item.estado} | ${item.unidade} - R$ ${item.preco_unitario.toFixed(2)} | Total - R$ ${item.total.toFixed(2)}`
+  ).join('\n');
+
+  // Monta a mensagem
+  const mensagem = 
+`📦 Novo Pedido Recebido! 📦
+Cliente: ${nome_usuario}
+Telefone: ${numero}
+E-mail: ${email}
+Pedido: #${pedidoId}
+Data de retirada: ${dataRetirada} às ${horarioRetirada}
+Forma de pagamento: ${formaPagamento}
+Status do pagamento: ${statusPagamento}
+Itens do pedido:
+${itensTexto}
+Valores:
+● Subtotal: R$ ${subtotal.toFixed(2)}
+● Descontos: R$ ${descontos.toFixed(2)}
+● Total: R$ ${total.toFixed(2)}`;
+
+  try {
+    await sock.sendMessage(
+      `${numero}@s.whatsapp.net`,
+      { text: mensagem }
+    );
+    console.log(`✅ Resumo do pedido enviado para ${numero}`);
+    return res.status(200).json({ success: true, message: 'Resumo do pedido enviado pelo WhatsApp!' });
+  } catch (err) {
+    console.error('Erro ao enviar mensagem pelo WhatsApp:', err);
+    return res.status(500).json({ error: 'Erro ao enviar mensagem pelo WhatsApp.' });
+  }
+};
+
